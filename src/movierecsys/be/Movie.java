@@ -6,63 +6,57 @@
 package movierecsys.be;
 
 /**
- *
  * @author pgn
  */
-public class Movie
-{
+public class Movie {
 
-    private final int id;
+    private int id;
     private String title;
     private int year;
 
-    public Movie(int id, int year, String title)
-    {
+    public Movie() {
+    }
+
+    public Movie(int id, int year, String title) {
         this.id = id;
         this.title = title;
         this.year = year;
     }
 
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getTitle()
-    {
+    public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title)
-    {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public int getYear()
-    {
+    public int getYear() {
         return year;
     }
 
-    public void setYear(int year)
-    {
+    public void setYear(int year) {
         this.year = year;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return id + ": " + title + " (" + year + '}';
     }
 
     @Override
-    public boolean equals(Object obj)
-    {
-        if (obj instanceof Movie)
-        {
+    public boolean equals(Object obj) {
+        if (obj instanceof Movie) {
             Movie other = (Movie) obj;
             return other.getId() == this.id;
-        } else
-        {
+        } else {
             return super.equals(obj);
         }
     }

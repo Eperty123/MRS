@@ -5,8 +5,6 @@
  */
 package movierecsys.dal.exception;
 
-import java.io.IOException;
-
 /**
  *
  * @author pgn

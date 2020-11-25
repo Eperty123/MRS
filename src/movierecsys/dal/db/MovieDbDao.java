@@ -24,22 +24,16 @@ import movierecsys.dal.exception.MrsDalException;
  */
 public class MovieDbDao implements IMovieRepository {
 
-    private final JDBCConnectionPool connectionPool;
+    private final DbConnectionHandler connectionPool;
 
-    public MovieDbDao() throws IOException {
-        connectionPool = JDBCConnectionPool.getInstance();
+    public MovieDbDao() {
+        connectionPool = DbConnectionHandler.getInstance();
     }
-
-
-
-
-
-
 
     @Override
     public Movie createMovie(int releaseYear, String title) throws MrsDalException {
-        String sql = "INSERT INTO Movie (year,title) VALUES(?,?);";
-        Connection con = connectionPool.checkOut(); // <<< Using the object pool here <<<
+        String sql = "INSERT INTO movie (year,title) VALUES(?,?);";
+        Connection con = connectionPool.getConnection(); // <<< Using the object pool here <<<
         try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             st.setInt(1, releaseYear);
             st.setString(2, title);
@@ -54,26 +48,30 @@ public class MovieDbDao implements IMovieRepository {
         } catch (SQLException ex) {
             ex.printStackTrace();
             throw new MrsDalException("Could not create movie.", ex);
-        } finally {
-            connectionPool.checkIn(con);// <<< Using the object pool here <<<
         }
     }
 
     @Override
     public void deleteMovie(Movie movie) throws MrsDalException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String sql = "DELETE FROM movie WHERE title = ?;";
+        Connection con = connectionPool.getConnection(); // <<< Using the object pool here <<<
+        try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            st.setString(1, movie.getTitle());
+            st.executeUpdate();
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            throw new MrsDalException("Could not create movie.", ex);
+        }
     }
 
     @Override
-    public List<Movie> getAllMovies() throws MrsDalException
-    {
+    public List<Movie> getAllMovies() throws MrsDalException {
         List<Movie> movies = new ArrayList<>();
-        Connection con = connectionPool.checkOut();
-        try (Statement statement = con.createStatement())
-        {
-            ResultSet rs = statement.executeQuery("SELECT * FROM Movie;");
-            while (rs.next())
-            {
+        Connection con = connectionPool.getConnection();
+        try (Statement statement = con.createStatement()) {
+            ResultSet rs = statement.executeQuery("SELECT * FROM movie;");
+            while (rs.next()) {
                 int id = rs.getInt("id");
                 int year = rs.getInt("year");
                 String title = rs.getString("title");
@@ -81,24 +79,46 @@ public class MovieDbDao implements IMovieRepository {
                 movies.add(movie);
             }
             return movies;
-        } catch (SQLException ex)
-        {
+        } catch (SQLException ex) {
             ex.printStackTrace();
             throw new MrsDalException("Could not get all movies from database", ex);
-        } finally
-        {
-            connectionPool.checkIn(con);
         }
     }
 
     @Override
     public Movie getMovie(int id) throws MrsDalException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String sql = "SELECT * FROM movie WHERE id = ?;";
+        Connection con = connectionPool.getConnection(); // <<< Using the object pool here <<<
+        try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            st.setInt(1, id);
+
+            st.executeUpdate();
+            var resultSet = st.getResultSet();
+            Movie movie = new Movie();
+            movie.setId(resultSet.getInt("id"));
+            movie.setTitle(resultSet.getString("title"));
+            movie.setYear(resultSet.getInt("year"));
+            return movie;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            throw new MrsDalException("Could not get movie.", ex);
+        }
     }
 
     @Override
     public void updateMovie(Movie movie) throws MrsDalException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String sql = "UPDATE movie SET title = ?, year = ? WHERE id = ?;";
+        Connection con = connectionPool.getConnection(); // <<< Using the object pool here <<<
+        try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            st.setString(1, movie.getTitle());
+            st.setInt(2, movie.getYear());
+            st.setInt(3, movie.getId());
+            st.executeUpdate();
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            throw new MrsDalException("Could not update movie.", ex);
+        }
     }
 
 }

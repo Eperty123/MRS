@@ -5,9 +5,6 @@
  */
 package movierecsys.dal;
 
-import java.io.IOException;
-import java.util.List;
-
 import movierecsys.be.Movie;
 import movierecsys.be.Rating;
 import movierecsys.be.User;
@@ -20,6 +17,9 @@ import movierecsys.dal.intereface.IMovieRepository;
 import movierecsys.dal.intereface.IRatingRepository;
 import movierecsys.dal.intereface.IUserRepository;
 
+import java.io.IOException;
+import java.util.List;
+
 /**
  * @author pgn
  */
@@ -30,7 +30,7 @@ public class DalController implements MrsDalInterface {
     private IRatingRepository ratingRepo;
 
     public DalController() throws IOException {
-        movieRepo = new MovieDAO();
+        movieRepo = new MovieDbDao();
         userRepo = new UserDAO();
         ratingRepo = new RatingDAO();
     }
